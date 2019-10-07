@@ -2,12 +2,12 @@ use std::error::Error;
 use std::fs;
 
 pub struct Config {
-    query: String,
-    filename: String,
+    pub query: String,
+    pub filename: String,
 }
 
-pub impl Config {
-    fn new(args: &[String]) -> Result<Config, &'static str> {
+impl Config {
+    pub fn new(args: &[String]) -> Result<Config, &'static str> {
         if args.len() < 3 {
             return Err("not enough arguments!");
         }
@@ -21,7 +21,40 @@ pub impl Config {
 pub fn run (config: Config) -> Result<(), Box<dyn Error>> {
     let contents = fs::read_to_string(config.filename)?;
 
-    println!("With text: \n{}", contents);
+    for line in search(&config.query, &contents){
+        println!("{}", line);
+    }
 
-    Ok(());
+    Ok(())
+}
+
+pub fn search<'a>(query: &str, contents: &'a str) -> Vec<&'a str> { //* we have to explicitly define the lifetime, the returned value makes a reference to the contents argumentrather than the query argument.
+    let mut results = Vec::new();
+
+    for line in contents.lines(){ //* returns an iterator the lines() method
+        if line.contains(query) {
+            results.push(line);        
+        }
+    }
+
+    results
+}
+
+#[cfg(test)]
+mod test{
+    use super::*;
+
+    #[test]
+    fn one_result(){
+        let query = "duct";
+        let contents = "\
+Rust: 
+safe, fast, productive.
+Pick three.";
+
+        assert_eq!(
+            vec!["safe, fast, productive."],
+            search(query, contents)
+        );
+    }
 }
