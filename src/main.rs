@@ -3,12 +3,13 @@ use std::process;
 
 use minigrep::Config;
 //use minigrep::Config; //for bringing the Config type from the library crate
-                    // into the binary crate's scope
+// into the binary crate's scope
 
 fn main() {
     let args: Vec<String> = env::args().collect();
 
-    let config = Config::new(&args).unwrap_or_else(|err| { //* We customize our message if an error arises
+    let config = Config::new(&args).unwrap_or_else(|err| {
+        //* We customize our message if an error arises
         println!("Problem parsing arguments: {}", err);
         process::exit(1);
     });
@@ -19,5 +20,5 @@ fn main() {
     if let Err(e) = minigrep::run(config) {
         println!("Application error: {}", e);
         process::exit(1);
-    }   
+    }
 }
